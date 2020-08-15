@@ -1,16 +1,15 @@
-# scale_wheel
+# Scale Wheel Widget for Flutter Projects
 
-POC for scale wheel
+A Scrollable Wheel Wigdet which can be used as measuring instrument in your flutter apps.
+
+## Quick Peek :eyes:
+
+![Alt Text](https://github.com/codeprismtechnologies/flutter_scale_wheel/blob/master/docs/scale_wheel_demo.gif)
+
+
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* Clone this repo
+* Assuming you have flutter installed, run `flutter pub get`
+* Then, `flutter run -d <your-device-id>`
