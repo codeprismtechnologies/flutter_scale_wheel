@@ -9,7 +9,7 @@ class Wheel extends StatefulWidget {
 }
 
 class _WheelState extends State<Wheel> with SingleTickerProviderStateMixin {
-  double wheelSize = 400;
+  double wheelSize = 350;
   double angle = 0;
   double radius;
   AnimationController ctrl;
