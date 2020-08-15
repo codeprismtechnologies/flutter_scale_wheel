@@ -1,6 +1,6 @@
 # Scale Wheel Widget for Flutter Projects
 
-A Scrollable Wheel Wigdet which can be used as measuring instrument in your flutter apps.
+A Scrollable Wheel Widget which can be used as measuring instrument in your flutter apps.
 
 ## Quick Peek :eyes:
 
