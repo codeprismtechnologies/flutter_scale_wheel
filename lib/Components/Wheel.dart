@@ -4,35 +4,51 @@ import 'dart:math';
 import 'package:flutter/physics.dart';
 
 class Wheel extends StatefulWidget {
+  final double wheelSize;
+
+  Wheel({@required this.wheelSize});
+
   @override
   _WheelState createState() => _WheelState();
 }
 
 class _WheelState extends State<Wheel> with SingleTickerProviderStateMixin {
-  double wheelSize = 350;
+  double wheelSize;
   double angle = 0;
   double radius;
   AnimationController ctrl;
-
-  _WheelState() {
-    radius = this.wheelSize / 2;
-  }
 
   double roundDouble(double value, int places) {
     double mod = pow(10.0, places);
     return ((value * mod).round().toDouble() / mod);
   }
 
+  double roundToFifthDecimal(double num) {
+    double decimal = num - num.toInt();
+    int number = num.toInt();
+
+    return decimal == .5
+        ? num
+        : decimal < .25
+            ? number.toDouble()
+            : decimal >= .25 && decimal < .75
+                ? number + .5
+                : (number + 1).toDouble();
+  }
+
   @override
   void initState() {
-    super.initState();
+    wheelSize = widget.wheelSize;
+    radius = this.wheelSize / 2;
     ctrl = AnimationController.unbounded(vsync: this);
     ctrl.addListener(() {
-      double _angle = roundDouble(ctrl.value, 2);
+      double _angle = roundDouble(ctrl.value  - ((ctrl.value.toInt() / 2) * 0.1), 1);
+      print(_angle);
       setState(() {
-        angle = _angle >= 0 ? _angle : 0;
+        angle = _angle >= 0 ? ctrl.value.toInt().toDouble() : 0;
       });
     });
+    super.initState();
   }
 
   _panUpdateHandler(DragUpdateDetails d) {
@@ -69,52 +85,53 @@ class _WheelState extends State<Wheel> with SingleTickerProviderStateMixin {
   }
 
   _panEndHandler(DragEndDetails d) {
-    double _velocity = (d.velocity.pixelsPerSecond.dx / 100);
-    ctrl.animateWith(FrictionSimulation(
-        0.005, // <- the bigger this value, the less friction is applied
-        ctrl.value,
-        _velocity > 0 ? _velocity : 0 // <- Velocity of inertia
-        ));
+//    ctrl.animateWith(FrictionSimulation(
+//        0.005, // <- the bigger this value, the less friction is applied
+//        ctrl.value,
+//        d.velocity.pixelsPerSecond.dx / 100 // <- Velocity of inertia
+//        ));
+
+//    ctrl.animateTo(roundToFifthDecimal(roundDouble(ctrl.value, 2) * 2), duration: Duration(milliseconds: 500));
+
+//    print(
+//        "Decimal: ${roundDouble(ctrl.value * 1.5, 2)}, roundedTo5: ${roundToFifthDecimal(roundDouble(ctrl.value, 2) * 2)}");
   }
 
   @override
   Widget build(BuildContext context) {
     WheelCircle wheelCircle = WheelCircle(
-        wheelSize: wheelSize, longNeedleHeight: 30, shortNeedleHeight: 20);
+        wheelSize: wheelSize, longNeedleHeight: 40, shortNeedleHeight: 25);
 
-    SizedBox wheelContainer = SizedBox(
+    Container wheelContainer = Container(
       width: wheelSize,
       height: wheelSize,
-      child: Container(
-          color: Colors.transparent,
-          // If scale doesnt respond to pan, change transparent to red an check.
-          child: Center(child: CustomPaint(painter: wheelCircle))),
+      color: Colors.transparent,
+      // If scale doesnt respond to pan, change transparent to red an check.
+      child: Center(child: CustomPaint(painter: wheelCircle)),
     );
 
     GestureDetector draggableWheel = GestureDetector(
       onPanUpdate: _panUpdateHandler,
       onPanEnd: _panEndHandler,
-      child: AnimatedBuilder(
-        animation: ctrl,
-        builder: (ctx, w) {
-          return Center(
-            child: Transform.rotate(
-              angle: ctrl.value,
-              child: AnimatedBuilder(
-                animation: ctrl,
-                builder: (ctx, w) {
-                  angle = ctrl.value.roundToDouble();
-                  return Center(
-                    child: Transform.rotate(
-                      angle: ctrl.value,
-                      child: wheelContainer,
-                    ),
-                  );
-                },
-              ),
-            ),
-          );
-        },
+      child: Stack(
+        children: [
+          AnimatedBuilder(
+            animation: ctrl,
+            builder: (ctx, w) {
+              angle = ctrl.value.roundToDouble();
+              return Transform.rotate(
+                angle: ctrl.value,
+                child: wheelContainer,
+              );
+            },
+          ),
+          Container(
+              width: wheelSize,
+              height: wheelSize,
+              child: CustomPaint(
+                painter: WheelDecoration(),
+              ))
+        ],
       ),
     );
 
@@ -135,7 +152,14 @@ class _WheelState extends State<Wheel> with SingleTickerProviderStateMixin {
                   style: Theme.of(context).textTheme.headline4),
             ),
           ),
-          draggableWheel
+          SizedBox(
+            width: wheelSize,
+            height: wheelSize,
+            child: ClipRRect(
+              child: draggableWheel,
+              clipper: SemiCircleClip(),
+            ),
+          )
         ],
       ),
     );
@@ -171,25 +195,91 @@ class WheelCircle extends CustomPainter {
       ..strokeWidth = 1.5
       ..color = Colors.white;
 
-    canvas.drawCircle(Offset(0, 0), wheelSize / 2, wheelBorder);
-    canvas.drawLine(Offset(0, -50), Offset(0, 0),
-        wheelBorder); // <- this line is drawn just to help debug the angle. Comment this in prod.
+//    canvas.drawCircle(Offset(0, 0), wheelSize / 2, wheelBorder);
+//    canvas.drawLine(Offset(0, -50), Offset(0, 0),
+//        wheelBorder); // <- this line is drawn just to help debug the angle. Comment this in prod.
 
     for (int i = 0; i <= 360; i++) {
-      i % 5 == 0
-          ? canvas.drawLine(
-              Offset(radius * cos(getRadians(i)), radius * sin(getRadians(i))),
-              Offset((radius - this.longNeedleHeight) * cos(getRadians(i)),
-                  (radius - longNeedleHeight) * sin(getRadians(i))),
-              longNeedle)
-          : canvas.drawLine(
-              Offset(radius * cos(getRadians(i)), radius * sin(getRadians(i))),
-              Offset((radius - shortNeedleHeight) * cos(getRadians(i)),
-                  (radius - shortNeedleHeight) * sin(getRadians(i))),
-              shortNeedle);
+      if (i % 6 == 0) {
+        i % 60 == 0
+            ? canvas.drawLine(
+                Offset(
+                    radius * cos(getRadians(i)), radius * sin(getRadians(i))),
+                Offset((radius - (longNeedleHeight * .75)) * cos(getRadians(i)),
+                    (radius - (longNeedleHeight * .75)) * sin(getRadians(i))),
+                longNeedle)
+            : i % 30 == 0
+                ? canvas.drawLine(
+                    Offset(radius * cos(getRadians(i)),
+                        radius * sin(getRadians(i))),
+                    Offset((radius - longNeedleHeight) * cos(getRadians(i)),
+                        (radius - longNeedleHeight) * sin(getRadians(i))),
+                    longNeedle)
+                : canvas.drawLine(
+                    Offset(radius * cos(getRadians(i)),
+                        radius * sin(getRadians(i))),
+                    Offset((radius - shortNeedleHeight) * cos(getRadians(i)),
+                        (radius - shortNeedleHeight) * sin(getRadians(i))),
+                    shortNeedle);
+      }
     }
   }
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class WheelDecoration extends CustomPainter {
+  final indicator = Paint()
+    ..color = Color(0xFF007CFA)
+    ..strokeWidth = 2;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Rect leftRect = Rect.fromLTRB(0, 0, size.width * .3, size.height);
+
+    final Rect rightRect =
+        Rect.fromLTRB(size.width * .7, 0, size.width, size.height);
+
+    final Paint leftRectStyle = Paint()
+      ..shader = LinearGradient(
+        colors: <Color>[
+          Color(0xFF303030).withOpacity(1),
+          Color(0xFF303030).withOpacity(.95),
+          Color(0xFF303030).withOpacity(0)
+        ],
+      ).createShader(leftRect);
+
+    final Paint rightRectStyle = Paint()
+      ..shader = LinearGradient(
+        colors: <Color>[
+          Color(0xFF303030).withOpacity(0),
+          Color(0xFF303030).withOpacity(.95),
+          Color(0xFF303030).withOpacity(1)
+        ],
+      ).createShader(rightRect);
+//    ..color = Colors.red;
+
+    canvas.drawCircle(Offset(size.width * .5, -10), 5, indicator);
+    canvas.drawLine(
+        Offset(size.width * .5, -10), Offset(size.width * .5, 60), indicator);
+    canvas.drawRect(leftRect, leftRectStyle);
+    canvas.drawRect(rightRect, rightRectStyle);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class SemiCircleClip extends CustomClipper<RRect> {
+  @override
+  RRect getClip(Size size) {
+    return RRect.fromLTRBR(
+        0, -25, size.width, size.height / 2, Radius.circular(5));
+  }
+
+  @override
+  bool shouldReclip(CustomClipper oldClipper) {
+    return false;
+  }
 }

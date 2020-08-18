@@ -11,11 +11,11 @@ class _DemoScreenState extends State<DemoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "Scale Wheel Demo"
-        ),
+        title: Text("Scale Wheel Demo"),
       ),
-      body: Wheel(),
+      body: Wheel(
+        wheelSize: MediaQuery.of(context).size.width,
+      ),
     );
   }
 }
