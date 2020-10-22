@@ -407,7 +407,7 @@ class _ScaleBarState extends State<ScaleBar>
       List(_numberOfNeedles()).asMap().entries.map((entry) {
         if (_getNeedleType(entry.key) == _needleType.long) {
           return RotatedBox(
-            quarterTurns: widget.horizontal? 0: 1,
+            quarterTurns: widget.horizontal ? 0 : 1,
             child: Container(
               alignment: Alignment.center,
               padding: EdgeInsets.only(
@@ -426,7 +426,7 @@ class _ScaleBarState extends State<ScaleBar>
                   ? widget.gapBetweenNeedles * 12
                   : widget.gapBetweenNeedles * 10;
           return RotatedBox(
-            quarterTurns: widget.horizontal? 0: 1,
+            quarterTurns: widget.horizontal ? 0 : 1,
             child: Container(
                 width: (gapBetweenLongNeedles - numberWidth) /
                     (widget.scaleBase == ScaleBase.base12 ? 11 : 9),
@@ -438,10 +438,10 @@ class _ScaleBarState extends State<ScaleBar>
   Stack _verticalScaleBuilder() {
     // For Vertical Scale
     NeedleIndents longNeedleIndents() {
-      if (widget.needlesDirection == NeedlesDirection.ltrc ||
+      if (widget.needlesDirection == NeedlesDirection.rtlc ||
           widget.needlesDirection == NeedlesDirection.ltrc) {
         return NeedleIndents(
-            indent: widget.width * .1, endIndent: widget.width * .1);
+            indent: widget.width * .15, endIndent: widget.width * .15);
       } else {
         return NeedleIndents(
             indent: widget.needlesDirection == NeedlesDirection.ltr
@@ -454,10 +454,10 @@ class _ScaleBarState extends State<ScaleBar>
     }
 
     NeedleIndents medianNeedleIndents() {
-      if (widget.needlesDirection == NeedlesDirection.ltrc ||
+      if (widget.needlesDirection == NeedlesDirection.rtlc ||
           widget.needlesDirection == NeedlesDirection.ltrc) {
         return NeedleIndents(
-            indent: widget.width * .2, endIndent: widget.width * .2);
+            indent: widget.width * .25, endIndent: widget.width * .25);
       } else {
         return NeedleIndents(
             indent: widget.needlesDirection == NeedlesDirection.ltr
@@ -470,10 +470,10 @@ class _ScaleBarState extends State<ScaleBar>
     }
 
     NeedleIndents shortNeedleIndents() {
-      if (widget.needlesDirection == NeedlesDirection.ltrc ||
+      if (widget.needlesDirection == NeedlesDirection.rtlc ||
           widget.needlesDirection == NeedlesDirection.ltrc) {
         return NeedleIndents(
-            indent: widget.width * .3, endIndent: widget.width * .3);
+            indent: widget.width * .35, endIndent: widget.width * .35);
       } else {
         return NeedleIndents(
             indent: widget.needlesDirection == NeedlesDirection.ltr
@@ -530,20 +530,15 @@ class _ScaleBarState extends State<ScaleBar>
                 height: _numberOfNeedles() * widget.gapBetweenNeedles,
                 left: (widget.needlesDirection == NeedlesDirection.ltr ||
                         widget.needlesDirection == NeedlesDirection.ltrc)
-                    ? widget.height
+                    ? widget.width - numberSpace
                     : 0,
                 top: -numberSpace,
                 child: Column(children: _numbersList()))
             : Container(),
         Positioned(
-            width: widget.height,
+            width: widget.width,
             height: _numberOfNeedles() * widget.gapBetweenNeedles,
-            top: widget.showScaleNumbers
-                ? (widget.needlesDirection == NeedlesDirection.ltr ||
-                        widget.needlesDirection == NeedlesDirection.rtlc)
-                    ? 0
-                    : 5
-                : 0,
+            top: 5,
             left: 0,
             child: Column(
               children: needleTrack,
@@ -564,11 +559,17 @@ class _ScaleBarState extends State<ScaleBar>
                   ? widget.height + numberSpace
                   : widget.height
               : widget.height,
-          alignment: widget.measurePoint == ScaleMeasurePoint.center
-              ? Alignment.center
-              : widget.measurePoint == ScaleMeasurePoint.end
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
+          alignment: widget.horizontal
+              ? widget.measurePoint == ScaleMeasurePoint.center
+                  ? Alignment.center
+                  : widget.measurePoint == ScaleMeasurePoint.end
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft
+              : widget.measurePoint == ScaleMeasurePoint.center
+                  ? Alignment.center
+                  : widget.measurePoint == ScaleMeasurePoint.end
+                      ? Alignment.bottomCenter
+                      : Alignment.topCenter,
           child: RotatedBox(
             quarterTurns: widget.horizontal ? 0 : 1,
             child: widget.indicator ??

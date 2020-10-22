@@ -56,7 +56,7 @@ class _ScaleScreenState extends State<ScaleScreen> {
                 child: Text("Scale Value: $_scaleValue, Scroll Distance: $_scaleDistance",
                     style: Theme.of(context).textTheme.bodyText1)),
             Padding(
-              padding: const EdgeInsets.only(bottom: 50, left: 20, right: 20),
+              padding: const EdgeInsets.only(left: 20, right: 20),
               child: ScaleBar(
                 width: MediaQuery.of(context).size.width - 40,
                 height: _scaleHeight,
@@ -79,7 +79,7 @@ class _ScaleScreenState extends State<ScaleScreen> {
               ),
             ),
             Container(
-              height: MediaQuery.of(context).size.height - (225 + _scaleHeight + MediaQuery.of(context).viewPadding.bottom),
+              height: MediaQuery.of(context).size.height - ((_showScaleNumbers ? 175 : 155) + _scaleHeight + MediaQuery.of(context).viewPadding.bottom),
               color: CupertinoColors.systemGrey6,
               child: SingleChildScrollView(
                 child: Column(
